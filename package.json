@@ -1,0 +1,19 @@
+{
+  "name": "gov-interop-prototype",
+  "version": "1.0.0",
+  "description": "Government Interoperability Prototype",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm start",
+    "client": "cd frontend && npm run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "concurrently": "^10.0.5",
+    "postcss": "^8.5.28"
+  }
+}
