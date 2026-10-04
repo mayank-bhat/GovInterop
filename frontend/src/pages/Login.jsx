@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../utils/mockApi';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -14,21 +14,23 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const endpoint = isRegistering ? 'register' : 'login';
-      const payload = isRegistering ? { email, password, name, nationalId, role } : { email, password };
+      let res;
+      if (isRegistering) {
+        res = await api.auth.register({ email, password, name, nationalId, role });
+      } else {
+        res = await api.auth.login(email, password);
+      }
       
-      const res = await axios.post(`http://localhost:5000/api/auth/${endpoint}`, payload);
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('role', res.user.role);
       
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('role', res.data.user.role);
-      
-      if (res.data.user.role === 'official') {
+      if (res.user.role === 'official') {
         navigate('/official/dashboard');
       } else {
         navigate('/citizen/dashboard');
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Error occurred');
+      alert(err.message || 'Error occurred');
     }
   };
 

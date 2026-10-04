@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../utils/mockApi';
 
 function ApplyService() {
   const [service, setService] = useState('DrivingLicense');
@@ -28,9 +28,7 @@ function ApplyService() {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/applications', payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.applications.create(payload, token);
       navigate('/citizen/dashboard');
     } catch (err) {
       console.error(err);

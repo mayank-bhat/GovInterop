@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { api } from '../utils/mockApi';
 
 function OfficialDashboard() {
   const [logs, setLogs] = useState([]);
@@ -11,14 +11,13 @@ function OfficialDashboard() {
 
   const fetchData = async () => {
     const token = localStorage.getItem('token');
-    const headers = { Authorization: `Bearer ${token}` };
     
     try {
-      const logRes = await axios.get('http://localhost:5000/api/audit', { headers });
-      setLogs(logRes.data);
+      const logData = await api.audit.get();
+      setLogs(logData.reverse()); // latest first
 
-      const appRes = await axios.get('http://localhost:5000/api/applications', { headers });
-      setApplications(appRes.data);
+      const appData = await api.applications.get(token, 'official');
+      setApplications(appData.reverse());
     } catch (err) {
       console.error(err);
     }

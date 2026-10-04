@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../utils/mockApi';
 import { Clock, CheckCircle, XCircle } from 'lucide-react';
 
 function CitizenDashboard() {
@@ -13,14 +13,13 @@ function CitizenDashboard() {
 
   const fetchData = async () => {
     const token = localStorage.getItem('token');
-    const headers = { Authorization: `Bearer ${token}` };
     
     try {
-      const appRes = await axios.get('http://localhost:5000/api/applications', { headers });
-      setApplications(appRes.data);
+      const appData = await api.applications.get(token, 'citizen');
+      setApplications(appData);
 
-      const conRes = await axios.get('http://localhost:5000/api/consents', { headers });
-      setConsents(conRes.data);
+      const conData = await api.consents.get(token);
+      setConsents(conData);
     } catch (err) {
       console.error(err);
     }
@@ -29,19 +28,19 @@ function CitizenDashboard() {
   const handleConsent = async (id, status) => {
     const token = localStorage.getItem('token');
     try {
-      await axios.put(`http://localhost:5000/api/consents/${id}`, { status }, { headers: { Authorization: `Bearer ${token}` } });
-      fetchData(); // refresh
-
+      await api.consents.update(id, status, token);
+      
       // Mock trigger for Department 2 to resume processing if approved
       if (status === 'approved') {
         const consent = consents.find(c => c._id === id);
         // Find the pending application waiting for this consent
         const app = applications.find(a => a.status === 'Pending Consent' && a.primaryDepartment === consent.requestingDepartment);
         if (app) {
-           await axios.post(`http://localhost:5000/api/dept2/process/${app._id}`, {}, { headers: { Authorization: `Bearer ${token}` } });
-           fetchData();
+           await api.dept2.process(app._id);
         }
       }
+      
+      fetchData(); // refresh
     } catch (err) {
       console.error(err);
     }
